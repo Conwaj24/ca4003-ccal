@@ -29,21 +29,21 @@ fragment Y:    [yY];
 fragment Z:    [zZ];
 
 // Reserved words
-fragment VAR:     V A R;
-fragment CONST:   C O N S T;
-fragment RETURN:  R E T U R N;
-fragment INTEGER: I N T E G E R;
-fragment BOOLEAN: B O O L E A N;
-fragment VOID:    V O I D;
-fragment MAIN:    M A I N;
-fragment IF:      I F;
-fragment ELSE:    E L S E;
-fragment TRUE:    T R U E;
-fragment FALSE:   F A L S E;
-fragment WHILE:   W H I L E;
-fragment SKIP:    S K I P;
+VAR:     V A R;
+CONST:   C O N S T;
+RETURN:  R E T U R N;
+INTEGER: I N T E G E R;
+BOOLEAN: B O O L E A N;
+VOID:    V O I D;
+MAIN:    M A I N;
+IF:      I F;
+ELSE:    E L S E;
+TRUE:    T R U E;
+FALSE:   F A L S E;
+WHILE:   W H I L E;
+BREAK:    S K I P;
 
-RESERVED: (
+reserved: (
 	VAR |
 	CONST |
 	RETURN |
@@ -54,7 +54,7 @@ RESERVED: (
 	TRUE |
 	FALSE |
 	WHILE |
-	SKIP
+	BREAK
 );
 
 // Operators
@@ -73,7 +73,7 @@ OR:  '||';
 ASSIGN: '='; //RL
 
 SEP: ',';
-TERM: ';'
+TERM: ';';
 
 fragment DIGIT: [0-9];
 fragment CHAR: [a-zA-Z];
@@ -90,12 +90,14 @@ id: CHAR (CHAR | DIGIT | '_' )*;
 // Comments can appear between any two tokens. There are two forms of
 // comment: one is delimited by /* and */ and can be nested; the other begins
 // with // and is delimited by the end of line and this type of comments may
+fragment MCO: '/*';
+fragment MCC: '*/';
 line_comment: '//' .*? '\n'?;
-multi_comment: '/*' ( MULTI_COMMENT | . )*? '*/';
-comment:  ( LINE_COMMENT | MULTI_COMMENT );
+multi_comment: MCO ( multi_comment | . )*? MCC;
+comment:  ( line_comment | multi_comment );
 
 program: decl_list function_list main;
-decl_list: decl ';' decl_list?;
+decl_list: decl TERM decl_list?;
 decl: var_decl | const_decl;
 var_decl: VAR id':'type;
 const_decl: CONST id':'type ASSIGN expression;
@@ -104,7 +106,7 @@ function: type id '('parameter_list')'
 '{'
 decl_list
 statement_block
-RETURN '(' expression? ')' ';'
+RETURN '(' expression? ')' TERM
 '}';
 type: ( INTEGER | BOOLEAN | VOID );
 parameter_list: nemp_parameter_list?;
@@ -116,12 +118,12 @@ statement_block
 '}';
 statement_block: (statement statement_block)?;
 statement:
-	id '=' expression ';' |
-	id '(' arg_list ')' ';' |
+	id ASSIGN expression TERM |
+	id '(' arg_list ')' TERM |
 	'{' statement_block '}' |
 	IF condition '{' statement_block '}' ELSE '{' statement_block '}' |
 	WHILE condition '{' statement_block '}' |
-	SKIP ';';
+	BREAK TERM;
 expression:
 	frag binary_arith_op frag |
 	'(' expression ')' |
