@@ -81,17 +81,17 @@ fragment CHAR: [a-zA-Z];
 // Integers are represented by a string of one or more digits (‘0’-‘9’) that
 // do not start with the digit ‘0’, but may start with a minus sign (‘-’), e.g.
 // 123, -456.
-number: '-'? ( '0' | '1'..'9' DIGIT* );
+NUMBER: '-'? ( '0' | '1'..'9' DIGIT* );
 
 // Identifiers are represented by a string of letters, digits or underscore
 // character (‘_’) beginning with a letter. TODO Identifiers cannot be reserved words.
-id: CHAR (CHAR | DIGIT | '_' )*;
+ID: CHAR (CHAR | DIGIT | '_' )*;
 
 // Comments can appear between any two tokens. There are two forms of
 // comment: one is delimited by /* and */ and can be nested; the other begins
 // with // and is delimited by the end of line and this type of comments may
-fragment MCO: '/*';
-fragment MCC: '*/';
+MCO: '/*';
+MCC: '*/';
 line_comment: '//' .*? '\n'?;
 multi_comment: MCO ( multi_comment | . )*? MCC;
 comment:  ( line_comment | multi_comment );
@@ -99,10 +99,10 @@ comment:  ( line_comment | multi_comment );
 program: decl_list function_list main;
 decl_list: decl TERM decl_list?;
 decl: var_decl | const_decl;
-var_decl: VAR id':'type;
-const_decl: CONST id':'type ASSIGN expression;
+var_decl: VAR ID':'type;
+const_decl: CONST ID':'type ASSIGN expression;
 function_list: function function_list?;
-function: type id '('parameter_list')'
+function: type ID '('parameter_list')'
 '{'
 decl_list
 statement_block
@@ -111,15 +111,15 @@ RETURN '(' expression? ')' TERM
 type: ( INTEGER | BOOLEAN | VOID );
 parameter_list: nemp_parameter_list?;
 nemp_parameter_list: parameter | ( parameter SEP nemp_parameter_list );
-parameter: id':'type;
+parameter: ID':'type;
 main: MAIN '{'
 decl_list
 statement_block
 '}';
 statement_block: (statement statement_block)?;
 statement:
-	id ASSIGN expression TERM |
-	id '(' arg_list ')' TERM |
+	ID ASSIGN expression TERM |
+	ID '(' arg_list ')' TERM |
 	'{' statement_block '}' |
 	IF condition '{' statement_block '}' ELSE '{' statement_block '}' |
 	WHILE condition '{' statement_block '}' |
@@ -127,10 +127,10 @@ statement:
 expression:
 	frag binary_arith_op frag |
 	'(' expression ')' |
-	id '(' arg_list ')' |
+	ID '(' arg_list ')' |
 	frag;
 binary_arith_op: ADD | SUB;
-frag: id | NEG id | number | bool | expression;
+frag: ID | NEG ID | NUMBER | bool | expression;
 bool: TRUE | FALSE;
 condition:
 	NOT condition |
@@ -139,4 +139,4 @@ condition:
 	condition ( OR | AND ) condition;
 comp_op: EQ | NEQ | LT | LEQ | GT | GEQ;
 arg_list: nemp_arg_list?;
-nemp_arg_list: id | id SEP nemp_arg_list;
+nemp_arg_list: ID | ID SEP nemp_arg_list;
