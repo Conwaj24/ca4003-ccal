@@ -90,11 +90,10 @@ ID: CHAR (CHAR | DIGIT | '_' )*;
 // Comments can appear between any two tokens. There are two forms of
 // comment: one is delimited by /* and */ and can be nested; the other begins
 // with // and is delimited by the end of line and this type of comments may
-MCO: '/*';
-MCC: '*/';
-line_comment: '//' .*? '\n'?;
-multi_comment: MCO ( multi_comment | . )*? MCC;
-comment:  ( line_comment | multi_comment );
+Line_comment: '//' .*? '\n'? -> skip;
+Multi_comment: '/*' ( Multi_comment | . )*? '*/' -> skip;
+
+Whitespace: [ \t\n\r]+ -> skip;
 
 program: decl_list function_list main;
 decl_list: decl TERM decl_list?;
@@ -126,11 +125,16 @@ statement:
 	BREAK TERM;
 expression:
 	frag binary_arith_op frag |
-	'(' expression ')' |
 	ID '(' arg_list ')' |
 	frag;
 binary_arith_op: ADD | SUB;
-frag: ID | NEG ID | NUMBER | bool | expression;
+frag:
+	ID |
+	NEG ID |
+	NUMBER |
+	bool |
+	'(' expression ')' |
+	'(' frag ')';
 bool: TRUE | FALSE;
 condition:
 	NOT condition |
