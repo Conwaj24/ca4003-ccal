@@ -8,7 +8,6 @@
   ];
   profile = '' 
     export SHELL=zsh
-    alias javac='/usr/bin/javac --class-path=${pkgs.antlr4}/share/java/*'
   '';
   extraOutputsToInstall = [ "dev" ];
   runScript = ''$SHELL'';

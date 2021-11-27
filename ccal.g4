@@ -47,7 +47,7 @@ reserved: (
 	VAR |
 	CONST |
 	RETURN |
-	type
+	type |
 	MAIN |
 	IF |
 	ELSE |
@@ -81,7 +81,7 @@ fragment CHAR: [a-zA-Z];
 // Integers are represented by a string of one or more digits (‘0’-‘9’) that
 // do not start with the digit ‘0’, but may start with a minus sign (‘-’), e.g.
 // 123, -456.
-NUMBER: '-'? ( '0' | '1'..'9' DIGIT* );
+NUMBER: '-'? ( '0' | ('1'..'9' DIGIT*) );
 
 // Identifiers are represented by a string of letters, digits or underscore
 // character (‘_’) beginning with a letter. TODO Identifiers cannot be reserved words.
