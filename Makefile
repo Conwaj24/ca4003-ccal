@@ -13,11 +13,9 @@ ${TITLE}.class: ${TITLE}Lexer.class ${TITLE}Parser.class
 	javac ${CLASSFLAGS} $<
 
 clean:
-	rm -f *.class  ${TITLE}*er.* *.interp *.tokens
+	rm -f *.class  ${TITLE}*r.* *.interp *.tokens
 
 test: ${TITLE}
-	for file in *.ccal; do \
-		java ${CLASSFLAGS} $< < $$file; \
-	done
+	java ${CLASSFLAGS} $< *.ccal
 
 .PHONY: clean test ${TITLE}
