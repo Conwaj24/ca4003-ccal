@@ -59,7 +59,6 @@ reserved: (
 
 // Operators
 NOT: '~'; //RL
-NEG: '-'; //RL
 ADD: '+';
 SUB: '-';
 LT:  '<';
@@ -117,12 +116,12 @@ statement_block
 '}';
 statement_block: (statement statement_block)?;
 statement:
-	ID ASSIGN expression TERM |
-	ID '(' arg_list ')' TERM |
-	'{' statement_block '}' |
-	IF condition '{' statement_block '}' ELSE '{' statement_block '}' |
-	WHILE condition '{' statement_block '}' |
-	BREAK TERM;
+	ID ASSIGN expression TERM #assignment |
+	ID '(' arg_list ')' TERM #function_call |
+	'{' statement_block '}' #encapsulated_statements |
+	IF condition '{' statement_block '}' ELSE '{' statement_block '}' #branch |
+	WHILE condition '{' statement_block '}' #loop |
+	BREAK TERM #break;
 expression:
 	frag binary_arith_op frag |
 	ID '(' arg_list ')' |
@@ -130,7 +129,7 @@ expression:
 binary_arith_op: ADD | SUB;
 frag:
 	ID |
-	NEG ID |
+	SUB ID |
 	NUMBER |
 	bool |
 	'(' expression ')' |
