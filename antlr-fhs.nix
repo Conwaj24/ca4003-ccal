@@ -8,6 +8,7 @@
   ];
   profile = '' 
     export SHELL=zsh
+    export CLASSPATH="${pkgs.antlr4}/share/java/antlr-4.8-complete.jar:."
   '';
   extraOutputsToInstall = [ "dev" ];
   runScript = ''$SHELL'';
