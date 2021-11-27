@@ -1,21 +1,23 @@
 TITLE = ccal
+ANTLRPATH = /nix/store/xj0m2x4kzs3jg6j02n1b1h3vq5xg17fw-antlr-4.8/share/java/antlr-4.8-complete.jar
+CLASSFLAGS = -classpath "${ANTLRPATH}:."
 
-${TITLE}:
-# this isn't how makefile are supposed to be used but doing it the proper way would be too long
-	antlr ccal.g4
-	javac -classpath '/nix/store/xj0m2x4kzs3jg6j02n1b1h3vq5xg17fw-antlr-4.8/share/java/antlr-4.8-complete.jar' *.java
-	grun ccal r -gui *.ccal
-  
+${TITLE}: ${TITLE}.class
+
+${TITLE}.class: ${TITLE}Lexer.class ${TITLE}Parser.class
+
+%Lexer.java %Parser.java %.tokens %Listener.java %BaseListener.java %Visitor.java %BaseVisitor.java: %.g4
+	antlr -visitor $<
 
 %.class: %.java
-	javac -classpath '/nix/store/xj0m2x4kzs3jg6j02n1b1h3vq5xg17fw-antlr-4.8/share/java/antlr-4.8-complete.jar' $<
+	javac ${CLASSFLAGS} $<
 
 clean:
-	-rm -f *.class  ${TITLE}*er.* *.interp *.tokens
+	rm -f *.class  ${TITLE}*er.* *.interp *.tokens
 
 test: ${TITLE}
 	for file in *.ccal; do \
-		java ccal < $$file; \
+		java ${CLASSFLAGS} $< < $$file; \
 	done
 
-.PHONY: clean test
+.PHONY: clean test ${TITLE}
