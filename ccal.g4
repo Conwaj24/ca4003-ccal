@@ -95,11 +95,11 @@ Multi_comment: '/*' ( Multi_comment | . )*? '*/' -> skip;
 Whitespace: [ \t\n\r]+ -> skip;
 
 program: decl_list function_list main;
-decl_list: decl TERM decl_list?;
+decl_list: (decl TERM decl_list)?;
 decl: var_decl | const_decl;
 var_decl: VAR ID':'type;
 const_decl: CONST ID':'type ASSIGN expression;
-function_list: function function_list?;
+function_list: (function function_list)?;
 function: type ID '('parameter_list')'
 '{'
 decl_list
@@ -123,7 +123,7 @@ statement:
 	WHILE condition '{' statement_block '}' #loop |
 	BREAK TERM #break;
 expression:
-	frag binary_arith_op frag #arithmetic_expr |
+	frag binary_arith_op expression #arithmetic_expr |
 	ID '(' arg_list ')' #function_expr |
 	frag #frag_expr;
 binary_arith_op: ADD | SUB;
