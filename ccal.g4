@@ -123,17 +123,17 @@ statement:
 	WHILE condition '{' statement_block '}' #loop |
 	BREAK TERM #break;
 expression:
-	frag binary_arith_op frag |
-	ID '(' arg_list ')' |
-	frag;
+	frag binary_arith_op frag #arithmetic_expr |
+	ID '(' arg_list ')' #function_expr |
+	frag #frag_expr;
 binary_arith_op: ADD | SUB;
 frag:
-	ID |
-	SUB ID |
-	NUMBER |
-	bool |
-	'(' expression ')' |
-	'(' frag ')';
+	ID #id_frag |
+	SUB ID #neg_frag |
+	NUMBER #num_literal |
+	bool #bool_literal |
+	'(' expression ')' #expression_frag|
+	'(' frag ')' #encapsulated_frag;
 bool: TRUE | FALSE;
 condition:
 	NOT condition |
