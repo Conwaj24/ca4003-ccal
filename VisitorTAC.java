@@ -34,16 +34,11 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 		if (args.length == 0)
 			return "";
 
-		if (args[0] == null)
-			return "";
-
 		String out = args[0];
 		if (out.isEmpty())
 			return "";
 
 		for ( int i = 1; i < args.length; i++ ) {
-			if (args[i] == null)
-				return "";
 			String s = args[i];
 			if (s.isEmpty())
 				return "";
