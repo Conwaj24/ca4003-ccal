@@ -14,6 +14,6 @@ clean:
 	rm -f *.class  ${TITLE}*r.* *.interp *.tokens
 
 test: ${TITLE}
-	java $< expressions.ccal
+	java $< expressions.ccl
 
 .PHONY: clean test ${TITLE}
