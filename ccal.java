@@ -26,6 +26,6 @@ public class ccal {
   
 		//System.out.println (tree.toStringTree(parser));
 		VisitorTAC tac = new VisitorTAC();
-		System.out.println(tac.visit(tree));
+		tac.visit(tree);
 	}
 }

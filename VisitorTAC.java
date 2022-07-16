@@ -2,6 +2,10 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	int tempCount = 0;
 
 	@Override
+	public String visitExpression_frag(ccalParser.Expression_fragContext ctx) {
+		return visit(ctx.expression());
+	}
+	@Override
 	public String visitAssignment(ccalParser.AssignmentContext ctx) {
 		String id = ctx.ID().getText();
 		System.out.println(threeAddressCode (
