@@ -1,7 +1,22 @@
 public class VisitorTAC extends ccalBaseVisitor<String> {
+	int tempCount = 0;
+
+	@Override
+	public String visitAssignment(ccalParser.AssignmentContext ctx) {
+		String id = ctx.ID().getText();
+		System.out.println(threeAddressCode (
+			id,
+			visit(ctx.expression()),
+			null,
+			null
+		));
+		return id;
+
+	}
+
 	@Override
 	public String visitArithmetic_expr(ccalParser.Arithmetic_exprContext ctx) {
-		String id = "t0";
+		String id = "t" + tempCount++;
 		System.out.println(threeAddressCode (
 			id,
 			visit(ctx.frag()),
@@ -13,8 +28,7 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 
 	@Override
 	public String visitId_frag(ccalParser.Id_fragContext ctx) {
-		return ctx.ID().getText();
-	}
+		return ctx.ID().getText(); }
 	@Override
 	public String visitNum_literal(ccalParser.Num_literalContext ctx) {
 		return ctx.NUMBER().getText();
@@ -27,6 +41,13 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 				concatIfAllNonzero(op, a2)
 				);
 	}
+	static boolean nonzero(String s) {
+		try {
+			return !s.isEmpty();
+		} catch (java.lang.NullPointerException e) {
+			return false;
+		}
+	}
 	static String concatIfAllNonzero(String... args) {
 		return concatIfAllNonzero(args, " ");
 	}
@@ -35,12 +56,12 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 			return "";
 
 		String out = args[0];
-		if (out.isEmpty())
+		if (!nonzero(out))
 			return "";
 
 		for ( int i = 1; i < args.length; i++ ) {
 			String s = args[i];
-			if (s.isEmpty())
+			if (!nonzero(s))
 				return "";
 			out = out.concat(separator);
 			out = out.concat(s);

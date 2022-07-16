@@ -8,12 +8,16 @@ ${TITLE}.class: ${TITLE}Lexer.class ${TITLE}Parser.class VisitorTAC.class
 	antlr -visitor $<
 
 %.class: %.java
-	javac $<
+	javac -g $<
 
 clean:
 	rm -f *.class  ${TITLE}*r.* *.interp *.tokens
 
+testfile = expressions.ccl
 test: ${TITLE}
-	java $< expressions.ccl
+	java $< ${testfile}
+
+debug: ${TITLE}
+	rlwrap jdb $< ${testfile}
 
 .PHONY: clean test ${TITLE}

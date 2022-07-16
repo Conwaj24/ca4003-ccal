@@ -5,7 +5,6 @@
   targetPkgs = pkgs: with pkgs; [ 
     antlr4
     jdk8
-    eclipses.eclipse-java
   ];
   profile = '' 
     export SHELL=zsh
