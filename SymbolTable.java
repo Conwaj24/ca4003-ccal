@@ -18,11 +18,13 @@ public class SymbolTable
 		return out;
 	}
 
-	public void declare(String id, Symbol s) {
+	public String declare(String id, Symbol s) {
 		data.put(id, s);
+		return id;
 	}
-	public void declare(String id, String type) {
+	public String declare(String id, String type) {
 		data.put(id, new Symbol(type, null));
+		return id;
 	}
 
 	public void assign(String id, String value) {

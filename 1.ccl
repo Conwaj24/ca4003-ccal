@@ -12,3 +12,13 @@ main
   i = 1;
   i = test_fn (i);
 }
+
+/*
+goto main
+test_fn: test_fn.x = getparam
+test_fn.i = 2
+return test_fn.x
+main: i = 1
+param i
+i = call test_fn 1
+*/

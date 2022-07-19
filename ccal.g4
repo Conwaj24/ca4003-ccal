@@ -106,6 +106,7 @@ decl_list
 statement_block
 RETURN '(' expression? ')' TERM
 '}';
+function_call: ID '(' arg_list ')';
 type: ( INTEGER | BOOLEAN | VOID );
 parameter_list: nemp_parameter_list?;
 nemp_parameter_list: parameter | ( parameter SEP nemp_parameter_list );
@@ -117,14 +118,14 @@ statement_block
 statement_block: (statement statement_block)?;
 statement:
 	ID ASSIGN expression TERM #assignment |
-	ID '(' arg_list ')' TERM #function_call |
+	function_call TERM #function_statement |
 	'{' statement_block '}' #encapsulated_statements |
 	IF condition '{' statement_block '}' ELSE '{' statement_block '}' #branch |
 	WHILE condition '{' statement_block '}' #loop |
 	BREAK TERM #break;
 expression:
 	frag binary_arith_op expression #arithmetic_expr |
-	ID '(' arg_list ')' #function_expr |
+	function_call #function_result |
 	frag #frag_expr;
 binary_arith_op: ADD | SUB;
 frag:

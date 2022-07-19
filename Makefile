@@ -13,7 +13,7 @@ ${TITLE}.class: ${TITLE}Lexer.class ${TITLE}Parser.class VisitorTAC.class
 clean:
 	rm -f *.class  ${TITLE}*r.* *.interp *.tokens
 
-testfile = expressions.ccl
+testfile = 1.ccl
 test: ${TITLE}
 	java $< ${testfile}
 
