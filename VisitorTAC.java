@@ -1,12 +1,19 @@
 public class VisitorTAC extends ccalBaseVisitor<String> {
-	int tempCount = 0;
+	SymbolTable st = new SymbolTable();
 
+	@Override
+	public String visitVar_decl(ccalParser.Var_declContext ctx) {
+		String id = ctx.ID().getText();
+		st.declare(id, ctx.type().getText());
+		return id;
+	}
 	@Override
 	public String visitExpression_frag(ccalParser.Expression_fragContext ctx) {
 		return visit(ctx.expression());
 	}
 	@Override
 	public String visitAssignment(ccalParser.AssignmentContext ctx) {
+
 		String id = ctx.ID().getText();
 		System.out.println(threeAddressCode (
 			id,
@@ -20,7 +27,7 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 
 	@Override
 	public String visitArithmetic_expr(ccalParser.Arithmetic_exprContext ctx) {
-		String id = "t" + tempCount++;
+		String id = st.temporary(new Symbol("integer", visit(ctx.frag())));
 		System.out.println(threeAddressCode (
 			id,
 			visit(ctx.frag()),
