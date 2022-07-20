@@ -10,21 +10,23 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	@Override
 	public String visitMain(ccalParser.MainContext ctx) {
 		System.out.println("main:");
-		//enter scope
-		return super.visitMain(ctx);
-		//exit scope
+		st = st.sub("main");
+		super.visitMain(ctx);
+		st = st.parent;
+		return null;
 	}
 
 	@Override
 	public String visitFunction(ccalParser.FunctionContext ctx) {
-		//enter scope
-		String id = st.declare(
+		st = st.sub(ctx.ID().getText());
+		String id = st.parent.declare(
 				ctx.ID().getText(),
 				new Symbol(tsig(ctx.type()).takes()) //TODO after conversion to <Symbol>
 		);
 		System.out.println(id + ":");
 		super.visitFunction(ctx);
 		System.out.println("return " + visit(ctx.expression()) + ";");
+		st = st.parent;
 		return id;
 	}
 	@Override
@@ -55,9 +57,7 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 
 	@Override
 	public String visitVar_decl(ccalParser.Var_declContext ctx) {
-		String id = ctx.ID().getText();
-		st.declare(id, ctx.type().getText());
-		return id;
+		return st.declare(ctx.ID().getText(), ctx.type().getText());
 	}
 	@Override
 	public String visitExpression_frag(ccalParser.Expression_fragContext ctx) {
@@ -67,9 +67,10 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	public String visitAssignment(ccalParser.AssignmentContext ctx) {
 
 		String id = ctx.ID().getText();
+		st.assign(id, visit(ctx.expression()));
 		System.out.println(threeAddressCode (
 			id,
-			visit(ctx.expression()),
+			st.get(id).value,
 			null,
 			null
 		));

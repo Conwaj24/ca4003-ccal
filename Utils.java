@@ -21,9 +21,48 @@ class Utils {
 			String s = args[i];
 			if (!nonzero(s))
 				return "";
-			out = out.concat(separator);
-			out = out.concat(s);
+			out = out.concat(separator + s);
 		}
 		return out;
+	}
+
+	static String concatLeadingNonzeroes(String[] args, String separator) {
+		if (args.length == 0)
+			return "";
+
+		String out = args[0];
+		if (!nonzero(out))
+			return "";
+
+		for ( int i = 1; i < args.length; i++ ) {
+			String s = args[i];
+			if (!nonzero(s))
+				return out;
+			out = out.concat(separator + s);
+		}
+		return out;
+	}
+	static String concatLeadingNonzeroes(String... args) {
+		return concatLeadingNonzeroes(args, " ");
+	}
+
+	static String concatTralingNonzeroes(String[] args, String separator) {
+		if (args.length == 0)
+			return "";
+
+		String out = args[args.length - 1];
+		if (!nonzero(out))
+			return "";
+
+		for ( int i = args.length-2; i >= 0; i-- ) {
+			String s = args[i];
+			if (!nonzero(s))
+				return out;
+			out = s.concat(separator + out);
+		}
+		return out;
+	}
+	static String concatTrailingNonzeroes(String... args) {
+		return concatTralingNonzeroes(args, ".");
 	}
 }

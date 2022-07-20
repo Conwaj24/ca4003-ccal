@@ -4,6 +4,10 @@ ${TITLE}: ${TITLE}.class
 
 ${TITLE}.class: ${TITLE}Lexer.class ${TITLE}Parser.class VisitorTAC.class
 
+VisitorTAC.class: Utils.class SymbolTable.class TypeSignature.class
+SymbolTable.class: Utils.class Symbol.class
+Symbol.class: TypeSignature.class
+
 %Lexer.java %Parser.java %.tokens %Listener.java %BaseListener.java %Visitor.java %BaseVisitor.java: %.g4
 	antlr -visitor $<
 
