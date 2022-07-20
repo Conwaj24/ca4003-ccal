@@ -24,6 +24,21 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 		);
 		System.out.println(id + ":");
 		super.visitFunction(ctx);
+		System.out.println("return " + visit(ctx.expression()) + ";");
+		return id;
+	}
+	@Override
+	public String visitNemp_parameter_list(ccalParser.Nemp_parameter_listContext ctx) {
+		String out = visit(ctx.parameter());
+		try
+			{ out += " " + visit(ctx.nemp_parameter_list()); }
+		catch (NullPointerException e) {}
+		return out;
+	}
+	@Override
+	public String visitParameter(ccalParser.ParameterContext ctx) {
+		String id = st.declare(ctx.ID().getText(), ctx.type().getText());
+		System.out.println(threeAddressCode(id, "getparam"));
 		return id;
 	}
 
@@ -35,8 +50,7 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 			argc++;
 			System.out.println("param " + arg.ID().getText());
 		}
-		System.out.println(String.format("call %s %d", ctx.ID().getText(), argc));
-		return super.visitFunction_call(ctx);
+		return (String.format("call %s %d", ctx.ID().getText(), argc));
 	}
 
 	@Override
@@ -86,39 +100,15 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	static TypeSignature tsig(ccalParser.TypeContext ctx) {
 		return new TypeSignature(ctx.getText());
 	}
+	static String threeAddressCode(String a0, String a1) {
+		return threeAddressCode(a0, a1, null, null);
+	}
 	static String threeAddressCode(String a0, String a1, String op, String a2) {
 		return String.format(
 				"%s %s %s",
-				concatIfAllNonzero(a0, "="),
+				Utils.concatIfAllNonzero(a0, "="),
 				a1,
-				concatIfAllNonzero(op, a2)
+				Utils.concatIfAllNonzero(op, a2)
 				);
-	}
-	static boolean nonzero(String s) {
-		try {
-			return !s.isEmpty();
-		} catch (java.lang.NullPointerException e) {
-			return false;
-		}
-	}
-	static String concatIfAllNonzero(String... args) {
-		return concatIfAllNonzero(args, " ");
-	}
-	static String concatIfAllNonzero(String[] args, String separator) {
-		if (args.length == 0)
-			return "";
-
-		String out = args[0];
-		if (!nonzero(out))
-			return "";
-
-		for ( int i = 1; i < args.length; i++ ) {
-			String s = args[i];
-			if (!nonzero(s))
-				return "";
-			out = out.concat(separator);
-			out = out.concat(s);
-		}
-		return out;
 	}
 }
