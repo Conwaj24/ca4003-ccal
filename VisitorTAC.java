@@ -1,3 +1,5 @@
+import org.antlr.v4.runtime.tree.TerminalNode;
+
 public class VisitorTAC extends ccalBaseVisitor<String> {
 	SymbolTable st = new SymbolTable();
 
@@ -44,13 +46,18 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 		return id;
 	}
 
+
+	@Override
+	public String visitId_frag(ccalParser.Id_fragContext ctx) {
+		return globalID(ctx.ID());
+	}
 	@Override
 	public String visitFunction_call(ccalParser.Function_callContext ctx) {
 		int argc = 0;
 
 		for (ccalParser.Nemp_arg_listContext arg = ctx.arg_list().nemp_arg_list(); arg != null; arg = arg.nemp_arg_list()) {
 			argc++;
-			System.out.println("param " + arg.ID().getText());
+			System.out.println("param " + globalID(arg.ID()));
 		}
 		return (String.format("call %s %d", ctx.ID().getText(), argc));
 	}
@@ -65,9 +72,7 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	}
 	@Override
 	public String visitAssignment(ccalParser.AssignmentContext ctx) {
-
-		String id = ctx.ID().getText();
-		st.assign(id, visit(ctx.expression()));
+		String id = st.assign(ctx.ID().getText(), visit(ctx.expression()));
 		System.out.println(threeAddressCode (
 			id,
 			st.get(id).value,
@@ -91,13 +96,13 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	}
 
 	@Override
-	public String visitId_frag(ccalParser.Id_fragContext ctx) {
-		return ctx.ID().getText(); }
-	@Override
 	public String visitNum_literal(ccalParser.Num_literalContext ctx) {
 		return ctx.NUMBER().getText();
 	}
 
+	String globalID(TerminalNode idNode) {
+		return st.getFullID(idNode.getText());
+	}
 	static TypeSignature tsig(ccalParser.TypeContext ctx) {
 		return new TypeSignature(ctx.getText());
 	}

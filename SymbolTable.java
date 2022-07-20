@@ -1,5 +1,15 @@
 import java.util.*;
 
+class SymbolContext {
+	public SymbolTable symbolTable;
+	public Symbol symbol;
+
+	SymbolContext(SymbolTable t, Symbol s) {
+		symbolTable = t;
+		symbol = s;
+	}
+}
+
 public class SymbolTable
 {
 	public SymbolTable parent = null;
@@ -30,6 +40,20 @@ public class SymbolTable
 		return items[items.length -1];
 	}
 
+	SymbolContext getContext(String id) {
+		id = basename(id);
+		Symbol out = data.get(id);
+		if (out == null && parent != null)
+			return parent.getContext(id);
+		return new SymbolContext (this, out);
+	}
+
+	public String getFullID(String id) {
+		id = basename(id);
+		SymbolContext sc = getContext(id);
+		return sc.symbolTable.entryID(id);
+	}
+
 	public Symbol get(String id){
 		id = basename(id);
 		Symbol out = data.get(id);
@@ -57,9 +81,11 @@ public class SymbolTable
 		return declare(id, new Symbol(type, null));
 	}
 
-	public void assign(String id, String value) {
+	public String assign(String id, String value) {
 		id = basename(id);
-		get(id).value = value;
+		SymbolContext sc = getContext(id);
+		sc.symbol.value = value;
+		return sc.symbolTable.entryID(id);
 	}
 
 	public String temporary(Symbol s) {
