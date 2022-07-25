@@ -49,16 +49,24 @@ public class SymbolTable
 	}
 
 	public String getFullID(String id) {
-		id = basename(id);
 		SymbolContext sc = getContext(id);
-		return sc.symbolTable.entryID(id);
+		return sc.symbolTable.entryID(basename(id));
 	}
 
-	public Symbol get(String id){
+	public String getValue(String id) {
+		Symbol s = get(id);
+		if (s.value == null)
+			new UnassignedSymbol(id);
+		return s.value;
+	}
+	public Symbol get(String id) {
 		id = basename(id);
 		Symbol out = data.get(id);
-		if (out == null && parent != null)
+		if (out == null) {
+			if (parent == null)
+				new UnknownSymbol(id);
 			return parent.get(id);
+		}
 		return out;
 	}
 
@@ -82,10 +90,16 @@ public class SymbolTable
 	}
 
 	public String assign(String id, String value) {
-		id = basename(id);
 		SymbolContext sc = getContext(id);
+
+		//interpret value
+		try {
+		 	Symbol v = get(value);
+			sc.symbol.assign(v);
+		} catch (UnknownSymbol e) { } 
+
 		sc.symbol.value = value;
-		return sc.symbolTable.entryID(id);
+		return sc.symbolTable.entryID(basename(id));
 	}
 
 	public String temporary(Symbol s) {

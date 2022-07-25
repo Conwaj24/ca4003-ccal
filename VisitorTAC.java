@@ -75,7 +75,7 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 		String id = st.assign(ctx.ID().getText(), visit(ctx.expression()));
 		System.out.println(threeAddressCode (
 			id,
-			st.get(id).value,
+			st.getValue(id),
 			null,
 			null
 		));

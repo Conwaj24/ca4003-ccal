@@ -1,6 +1,6 @@
 public class Symbol {
-	public TypeSignature t;
-	public String value;
+	TypeSignature t;
+	String value;
 
 	Symbol(TypeSignature t, String value) {
 		this.t = t;
@@ -11,5 +11,19 @@ public class Symbol {
 	}
 	Symbol(TypeSignature t) {
 		this(t, null);
+	}
+
+	public String get() {
+		return value;
+	}
+
+	public void assign(Symbol s) {
+		if (t.equals(s.t))
+			value = s.get();
+		else
+			new UnassignedSymbol("hi");
+	}
+	public void assign(String s) {
+		value = s;
 	}
 }
