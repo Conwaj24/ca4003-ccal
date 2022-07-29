@@ -1,13 +1,9 @@
-public class SemanticError extends Throwable{
+public class SemanticError extends RuntimeException{
 	public SemanticError(String s) {
 		super(red(s));
-		raise(this);
 	}
 	static String red(String s) {
-		return String.format("\u001B[31m%s\u001B[0m");
-	}
-	<E extends Throwable> void raise(Throwable e) throws E {
-		throw (E) e;
+		return String.format("\u001B[31m%s\u001B[0m", s);
 	}
 }
 

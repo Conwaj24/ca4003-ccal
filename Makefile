@@ -2,7 +2,7 @@ TITLE = ccal
 
 ${TITLE}: ${TITLE}.class
 
-${TITLE}.class: ${TITLE}Lexer.class ${TITLE}Parser.class VisitorTAC.class
+${TITLE}.class: ${TITLE}Lexer.class ${TITLE}Parser.class VisitorTAC.class SemanticError.class
 
 VisitorTAC.class: Utils.class SymbolTable.class TypeSignature.class
 SymbolTable.class: Utils.class Symbol.class
@@ -15,13 +15,16 @@ Symbol.class: TypeSignature.class
 	javac -g $<
 
 clean:
-	rm -f *.class  ${TITLE}*r.* *.interp *.tokens
+	rm -f *.class  ${TITLE}*r.* *.interp *.tokens *.ir
 
-testfile = 1.ccl
+testfile = 2.ccl
 test: ${TITLE}
 	java $< ${testfile}
 
 debug: ${TITLE}
 	rlwrap jdb $< ${testfile}
 
-.PHONY: clean test ${TITLE}
+%.ir: %.ccl ${TITLE}
+	java ${TITLE} $< > $@
+
+.PHONY: clean test ${TITLE} debug

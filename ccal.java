@@ -17,14 +17,17 @@ public class ccal {
 		for (InputStream in : ccalFiles)
 			compile(in);
 	}
-	static void compile(InputStream in) throws Exception{
+
+	static ParseTree parse(InputStream in) throws IOException {
 		ccalLexer lexer = new ccalLexer (CharStreams.fromStream(in));
 		CommonTokenStream tokens = new CommonTokenStream (lexer);
 		ccalParser parser = new ccalParser (tokens);
 
-		ParseTree tree = parser.program();
-  
-		//System.out.println (tree.toStringTree(parser));
+		return parser.program();
+	}
+
+	static void compile(InputStream in) throws Exception{
+		ParseTree tree = parse(in);
 		VisitorTAC tac = new VisitorTAC();
 		tac.visit(tree);
 	}

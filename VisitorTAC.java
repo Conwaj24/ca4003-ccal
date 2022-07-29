@@ -73,12 +73,22 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	@Override
 	public String visitAssignment(ccalParser.AssignmentContext ctx) {
 		String id = st.assign(ctx.ID().getText(), visit(ctx.expression()));
-		System.out.println(threeAddressCode (
-			id,
-			st.getValue(id),
-			null,
-			null
-		));
+		try {
+			System.out.println(threeAddressCode (
+				id,
+				st.getValue(id),
+				null,
+				null
+			));
+		} catch (UnassignedSymbol e) {
+			System.out.println(threeAddressCode (
+				id,
+				e.toString(),
+				null,
+				null
+			));
+
+		}
 		return id;
 
 	}

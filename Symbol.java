@@ -20,8 +20,6 @@ public class Symbol {
 	public void assign(Symbol s) {
 		if (t.equals(s.t))
 			value = s.get();
-		else
-			new UnassignedSymbol("hi");
 	}
 	public void assign(String s) {
 		value = s;
