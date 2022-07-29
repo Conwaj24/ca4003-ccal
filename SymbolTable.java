@@ -55,9 +55,9 @@ public class SymbolTable
 
 	public String getValue(String id) throws UnassignedSymbol, UnknownSymbol {
 		Symbol s = get(id);
-		if (s.value == null)
+		if (s.get() == null)
 			throw new UnassignedSymbol (id);
-		return s.value;
+		return s.get();
 	}
 	public Symbol get(String id) throws UnknownSymbol {
 		id = basename(id);
@@ -67,17 +67,6 @@ public class SymbolTable
 				throw new UnknownSymbol(id);
 			return parent.get(id);
 		}
-		return out;
-	}
-
-	public Set<Map.Entry<String,Symbol>> getLocals(){
-		return data.entrySet();
-	}
-
-	public Set<Map.Entry<String,Symbol>> getAll(){
-		Set<Map.Entry<String,Symbol>> out = getLocals();
-		if (parent == null)
-			out.addAll(parent.getLocals());
 		return out;
 	}
 
@@ -91,7 +80,7 @@ public class SymbolTable
 
 	public String assign(String id, String value) {
 		SymbolContext sc = getContext(id);
-		sc.symbol.value = value;
+		sc.symbol.assign(value);
 		return sc.symbolTable.entryID(basename(id));
 	}
 

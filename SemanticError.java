@@ -19,4 +19,8 @@ class UnassignedSymbol extends SemanticError {
 	}
 }
 
-
+class AssignToConst extends SemanticError {
+	AssignToConst(String id) {
+		super(String.format("Const, %s, cannot be overwritten", id));
+	}
+}

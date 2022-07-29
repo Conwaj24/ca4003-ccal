@@ -2,7 +2,7 @@ TITLE = ccal
 
 ${TITLE}: ${TITLE}.class
 
-${TITLE}.class: ${TITLE}Lexer.class ${TITLE}Parser.class VisitorTAC.class SemanticError.class
+${TITLE}.class: ${TITLE}Lexer.class ${TITLE}Parser.class SemanticError.class VisitorTAC.class
 
 VisitorTAC.class: Utils.class SymbolTable.class TypeSignature.class
 SymbolTable.class: Utils.class Symbol.class

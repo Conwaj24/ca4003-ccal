@@ -66,6 +66,19 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	public String visitVar_decl(ccalParser.Var_declContext ctx) {
 		return st.declare(ctx.ID().getText(), ctx.type().getText());
 	}
+
+	@Override
+	public String visitConst_decl(ccalParser.Const_declContext ctx) {
+		String v = visit(ctx.expression());
+		try {
+			v = st.getValue(v);
+		} catch(UnknownSymbol e) {}
+
+		String id = st.declare( ctx.ID().getText(), new ConstSymbol( tsig(ctx.type()), v));
+		System.out.println(threeAddressCode(id, v, null, null));
+
+		return id;
+	}
 	@Override
 	public String visitExpression_frag(ccalParser.Expression_fragContext ctx) {
 		return visit(ctx.expression());

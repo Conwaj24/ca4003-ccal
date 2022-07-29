@@ -1,6 +1,6 @@
 public class Symbol {
 	TypeSignature t;
-	String value;
+	private String value;
 
 	Symbol(TypeSignature t, String value) {
 		this.t = t;
@@ -23,5 +23,17 @@ public class Symbol {
 	}
 	public void assign(String s) {
 		value = s;
+	}
+}
+
+class ConstSymbol extends Symbol {
+	ConstSymbol(TypeSignature t, String value) {
+		super(t, value);
+	}
+	ConstSymbol(String type, String value) {
+		super(type, value);
+	}
+	public void assign(String s) {
+		throw new AssignToConst("¯\\_(ツ)_/¯");
 	}
 }
