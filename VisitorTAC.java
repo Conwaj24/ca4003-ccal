@@ -48,10 +48,6 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 
 
 	@Override
-	public String visitId_frag(ccalParser.Id_fragContext ctx) {
-		return globalID(ctx.ID());
-	}
-	@Override
 	public String visitFunction_call(ccalParser.Function_callContext ctx) {
 		int argc = 0;
 
@@ -69,19 +65,11 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 
 	@Override
 	public String visitConst_decl(ccalParser.Const_declContext ctx) {
-		String v = visit(ctx.expression());
-		try {
-			v = st.getValue(v);
-		} catch(UnknownSymbol e) {}
-
+		String v = deref(visit(ctx.expression()));
 		String id = st.declare( ctx.ID().getText(), new ConstSymbol( tsig(ctx.type()), v));
 		System.out.println(threeAddressCode(id, v, null, null));
 
 		return id;
-	}
-	@Override
-	public String visitExpression_frag(ccalParser.Expression_fragContext ctx) {
-		return visit(ctx.expression());
 	}
 	@Override
 	public String visitAssignment(ccalParser.AssignmentContext ctx) {
@@ -106,6 +94,11 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 
 	}
 
+	//expression
+	@Override
+	public String visitFrag_expr(ccalParser.Frag_exprContext ctx) {
+		return visit(ctx.frag());
+	}
 	@Override
 	public String visitArithmetic_expr(ccalParser.Arithmetic_exprContext ctx) {
 		String id = st.temporary(new Symbol("integer", visit(ctx.frag())));
@@ -118,14 +111,46 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 		return id;
 	}
 
+	//frag
+	@Override
+	public String visitId_frag(ccalParser.Id_fragContext ctx) {
+		return globalID(ctx.ID());
+	}
+	@Override
+	public String visitNeg_frag(ccalParser.Neg_fragContext ctx) {
+		if ( !isInt(st.get(ctx.ID().getText())) )
+			throw new OperatorMismatch(ctx.SUB().getText(), "integer");
+		return globalID(ctx.ID());
+	}
 	@Override
 	public String visitNum_literal(ccalParser.Num_literalContext ctx) {
 		return ctx.NUMBER().getText();
+	}
+	@Override
+	public String visitBool_literal(ccalParser.Bool_literalContext ctx) {
+		return ctx.bool().getText();
+	}
+	@Override
+	public String visitExpression_frag(ccalParser.Expression_fragContext ctx) {
+		return visit(ctx.expression());
 	}
 
 	String globalID(TerminalNode idNode) {
 		return st.getFullID(idNode.getText());
 	}
+
+	String deref(String s) {
+		try {
+			return st.getValue(s);
+		} catch(UnknownSymbol e) {
+			return s;
+		}
+	}
+
+	static boolean isInt(Symbol s) {
+		return s.type.equals(new TypeSignature("integer"));
+	}
+
 	static TypeSignature tsig(ccalParser.TypeContext ctx) {
 		return new TypeSignature(ctx.getText());
 	}

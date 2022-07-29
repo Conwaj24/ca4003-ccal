@@ -40,11 +40,14 @@ public class SymbolTable
 		return items[items.length -1];
 	}
 
-	SymbolContext getContext(String id) {
+	SymbolContext getContext(String id) throws UnknownSymbol {
 		id = basename(id);
 		Symbol out = data.get(id);
-		if (out == null && parent != null)
+		if (out == null) {
+			if (parent == null)
+				throw new UnknownSymbol (id);
 			return parent.getContext(id);
+		}
 		return new SymbolContext (this, out);
 	}
 
@@ -59,15 +62,8 @@ public class SymbolTable
 			throw new UnassignedSymbol (id);
 		return s.get();
 	}
-	public Symbol get(String id) throws UnknownSymbol {
-		id = basename(id);
-		Symbol out = data.get(id);
-		if (out == null) {
-			if (parent == null)
-				throw new UnknownSymbol(id);
-			return parent.get(id);
-		}
-		return out;
+	public Symbol get(String id) {
+		return getContext(id).symbol;
 	}
 
 	public String declare(String id, Symbol s) {

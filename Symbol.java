@@ -1,9 +1,9 @@
 public class Symbol {
-	TypeSignature t;
+	public TypeSignature type;
 	private String value;
 
 	Symbol(TypeSignature t, String value) {
-		this.t = t;
+		this.type = t;
 		this.value = value;
 	}
 	Symbol(String type, String value) {
@@ -18,7 +18,7 @@ public class Symbol {
 	}
 
 	public void assign(Symbol s) {
-		if (t.equals(s.t))
+		if (type.equals(s.type))
 			value = s.get();
 	}
 	public void assign(String s) {

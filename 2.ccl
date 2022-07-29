@@ -50,7 +50,7 @@ main
     var arg2:integer;
     var result:integer;
     const five:integer=5;
-    arg1=-6;
+    arg1=(-6);
     arg2=five;
     result=multiply(arg1,arg2);
 }

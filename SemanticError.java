@@ -24,3 +24,9 @@ class AssignToConst extends SemanticError {
 		super(String.format("Const, %s, cannot be overwritten", id));
 	}
 }
+
+class OperatorMismatch extends SemanticError {
+	OperatorMismatch(String op, String expectedType) {
+		super(String.format("Operator, %s, can only be used with type, %s", op, expectedType));
+	}
+}
