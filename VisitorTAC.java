@@ -28,7 +28,7 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 		);
 		System.out.println(id + ":");
 		super.visitFunction(ctx);
-		System.out.println("return " + visit(ctx.expression()) + ";");
+		System.out.println("return " + visit(ctx.expression()));
 		st = st.parent;
 		return id;
 	}
@@ -119,9 +119,13 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	}
 	@Override
 	public String visitNeg_frag(ccalParser.Neg_fragContext ctx) {
+
 		if ( !isInt(st.get(ctx.ID().getText())) )
 			throw new OperatorMismatch(ctx.SUB().getText(), "integer");
-		return globalID(ctx.ID());
+
+		String id = st.temporary(new Symbol("integer", "-" + globalID(ctx.ID())));
+		threeAddressCode(id);
+		return id;
 	}
 	@Override
 	public String visitNum_literal(ccalParser.Num_literalContext ctx) {
@@ -136,6 +140,21 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 		return visit(ctx.expression());
 	}
 
+	@Override
+	public String visitLoop(ccalParser.LoopContext ctx) {
+		String start = st.label();
+		String end = st.label();
+
+		jumpIfNot(visit(ctx.condition(), start, end), end);
+
+		label(start);
+		visit(ctx.statement_block());
+		jump(end);
+
+		label(end);
+
+		return start;
+	}
 	@Override
 	public String visitBranch(ccalParser.BranchContext ctx) {
 		String lIf = st.label();
@@ -168,11 +187,11 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	}
 	public String visitOr(ccalParser.ConditionContext ctx, String passLabel, String skipLabel) {
 		jumpIf(visit(ctx.condition(0), passLabel, skipLabel), passLabel);
-		return visit(ctx.condition(1));
+		return visit(ctx.condition(1), passLabel, skipLabel);
 	}
 	public String visitAnd(ccalParser.ConditionContext ctx, String passLabel, String skipLabel) {
 		jumpIfNot(visit(ctx.condition(0), passLabel, skipLabel), skipLabel);
-		return visit(ctx.condition(1));
+		return visit(ctx.condition(1), passLabel, skipLabel);
 	}
 	public String visitComparison(ccalParser.ConditionContext ctx) {
 		return visit(ctx.expression(0)) + ctx.comp_op().getText() + visit(ctx.expression(1));
@@ -217,6 +236,9 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 		System.out.println(String.format("ifz %s goto %s", condition, l));
 	}
 
+	void threeAddressCode(String id) {
+		threeAddressCode(id, st.getValue(id));
+	}
 	void threeAddressCode(String a0, String a1) {
 		threeAddressCode(a0, a1, null, null);
 	}
