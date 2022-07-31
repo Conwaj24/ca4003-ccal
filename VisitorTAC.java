@@ -5,17 +5,18 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 
 	@Override
 	public String visitProgram(ccalParser.ProgramContext ctx) {
-		System.out.println("goto main");
+		jump("main");
 		return super.visitProgram(ctx);
 	}
 
 	@Override
 	public String visitMain(ccalParser.MainContext ctx) {
-		System.out.println("main:");
-		st = st.sub("main");
+		String id = "main";
+		label(id);
+		st = st.sub(id);
 		super.visitMain(ctx);
 		st = st.parent;
-		return null;
+		return id;
 	}
 
 	@Override
@@ -42,7 +43,7 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	@Override
 	public String visitParameter(ccalParser.ParameterContext ctx) {
 		String id = st.declare(ctx.ID().getText(), ctx.type().getText());
-		System.out.println(threeAddressCode(id, "getparam"));
+		threeAddressCode(id, "getparam");
 		return id;
 	}
 
@@ -67,7 +68,7 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	public String visitConst_decl(ccalParser.Const_declContext ctx) {
 		String v = deref(visit(ctx.expression()));
 		String id = st.declare( ctx.ID().getText(), new ConstSymbol( tsig(ctx.type()), v));
-		System.out.println(threeAddressCode(id, v, null, null));
+		threeAddressCode(id, v, null, null);
 
 		return id;
 	}
@@ -75,19 +76,19 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	public String visitAssignment(ccalParser.AssignmentContext ctx) {
 		String id = st.assign(ctx.ID().getText(), visit(ctx.expression()));
 		try {
-			System.out.println(threeAddressCode (
+			threeAddressCode (
 				id,
 				st.getValue(id),
 				null,
 				null
-			));
+			);
 		} catch (UnassignedSymbol e) {
-			System.out.println(threeAddressCode (
+			threeAddressCode (
 				id,
 				e.toString(),
 				null,
 				null
-			));
+			);
 
 		}
 		return id;
@@ -102,12 +103,12 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	@Override
 	public String visitArithmetic_expr(ccalParser.Arithmetic_exprContext ctx) {
 		String id = st.temporary(new Symbol("integer", visit(ctx.frag())));
-		System.out.println(threeAddressCode (
+		threeAddressCode (
 			id,
 			visit(ctx.frag()),
 			ctx.binary_arith_op().getText(),
 			visit(ctx.expression())
-		));
+		);
 		return id;
 	}
 
@@ -135,6 +136,53 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 		return visit(ctx.expression());
 	}
 
+	@Override
+	public String visitBranch(ccalParser.BranchContext ctx) {
+		String id = st.label();
+
+		jumpIfNot(visit(ctx.condition()), conditionLabel(id, false));
+
+		label(conditionLabel(id, true));
+		st = st.sub("pass");
+		visit(ctx.statement_block(0));
+		st = st.parent;
+		jump(id + ".end");
+
+		label(conditionLabel(id, false));
+		st = st.sub("skip");
+		visit(ctx.statement_block(1));
+		st = st.parent;
+
+		label(id + ".end");
+
+		return null;
+	}
+
+	//condition
+	@Override
+	public String visitCondition(ccalParser.ConditionContext ctx) {
+		if (ctx.OR() != null)
+			return visitOr(ctx);
+		if (ctx.AND() != null)
+			return visitAnd(ctx);
+		if (ctx.comp_op() != null)
+			return visitComparison(ctx);
+		return visit(ctx.condition(0));
+	}
+
+	public String visitOr(ccalParser.ConditionContext ctx) {
+		jumpIf(visit(ctx.condition(0)), conditionLabel(true));
+		return visit(ctx.condition(1));
+	}
+	public String visitAnd(ccalParser.ConditionContext ctx) {
+		jumpIfNot(visit(ctx.condition(0)), conditionLabel(false));
+		return visit(ctx.condition(1));
+	}
+
+	public String visitComparison(ccalParser.ConditionContext ctx) {
+		return visit(ctx.expression(0)) + ctx.comp_op().getText() + visit(ctx.expression(1));
+	}
+
 	String globalID(TerminalNode idNode) {
 		return st.getFullID(idNode.getText());
 	}
@@ -154,15 +202,35 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	static TypeSignature tsig(ccalParser.TypeContext ctx) {
 		return new TypeSignature(ctx.getText());
 	}
-	static String threeAddressCode(String a0, String a1) {
-		return threeAddressCode(a0, a1, null, null);
+	String conditionLabel(String name, boolean b) {
+			return name + "." + (b ? "pass" : "skip");
 	}
-	static String threeAddressCode(String a0, String a1, String op, String a2) {
-		return String.format(
+	String conditionLabel(boolean b) {
+			return st.entryID(b ? "pass" : "skip");
+	}
+
+	static void label(String s){
+		System.out.println(s + ":");
+	}
+	static void jump(String l){
+		System.out.println("goto " + l);
+	}
+	static void jumpIf(String condition, String l) {
+		System.out.println(String.format("if %s goto %s", condition, l));
+	}
+	static void jumpIfNot(String condition, String l) {
+		System.out.println(String.format("ifz %s goto %s", condition, l));
+	}
+
+	void threeAddressCode(String a0, String a1) {
+		threeAddressCode(a0, a1, null, null);
+	}
+	static void threeAddressCode(String a0, String a1, String op, String a2) {
+		System.out.println(String.format(
 				"%s %s %s",
 				Utils.concatIfAllNonzero(a0, "="),
 				a1,
 				Utils.concatIfAllNonzero(op, a2)
-				);
+				));
 	}
 }

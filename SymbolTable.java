@@ -14,6 +14,7 @@ public class SymbolTable
 {
 	public SymbolTable parent = null;
 	int tempCount = 0;
+	int labelCount = 0;
 	HashMap<String,Symbol> data = new HashMap<>();;
 	String namespace = "";
 
@@ -84,5 +85,9 @@ public class SymbolTable
 		String id = "t" + tempCount++;
 		data.put(id, s);
 		return entryID(id);
+	}
+
+	public String label() {
+		return entryID("L" + labelCount++);
 	}
 }

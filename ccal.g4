@@ -89,7 +89,7 @@ ID: CHAR (CHAR | DIGIT | '_' )*;
 // Comments can appear between any two tokens. There are two forms of
 // comment: one is delimited by /* and */ and can be nested; the other begins
 // with // and is delimited by the end of line and this type of comments may
-Line_comment: '//' .*? '\n'? -> skip;
+Line_comment: '//' .*? ('\n'|EOF) -> skip;
 Multi_comment: '/*' ( Multi_comment | . )*? '*/' -> skip;
 
 Whitespace: [ \t\n\r]+ -> skip;
