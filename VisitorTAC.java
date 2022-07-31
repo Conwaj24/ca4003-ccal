@@ -138,47 +138,42 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 
 	@Override
 	public String visitBranch(ccalParser.BranchContext ctx) {
-		String id = st.label();
+		String lIf = st.label();
+		String lElse = st.label();
+		String lEnd = st.label();
 
-		jumpIfNot(visit(ctx.condition()), conditionLabel(id, false));
+		jumpIfNot(visit(ctx.condition(), lIf, lElse), lElse);
 
-		label(conditionLabel(id, true));
-		st = st.sub("pass");
+		label(lIf);
 		visit(ctx.statement_block(0));
-		st = st.parent;
-		jump(id + ".end");
+		jump(lEnd);
 
-		label(conditionLabel(id, false));
-		st = st.sub("skip");
+		label(lElse);
 		visit(ctx.statement_block(1));
-		st = st.parent;
 
-		label(id + ".end");
+		label(lEnd);
 
-		return null;
+		return lIf;
 	}
 
 	//condition
-	@Override
-	public String visitCondition(ccalParser.ConditionContext ctx) {
+	public String visit(ccalParser.ConditionContext ctx, String passLabel, String skipLabel) {
 		if (ctx.OR() != null)
-			return visitOr(ctx);
+			return visitOr(ctx, passLabel, skipLabel);
 		if (ctx.AND() != null)
-			return visitAnd(ctx);
+			return visitAnd(ctx, passLabel, skipLabel);
 		if (ctx.comp_op() != null)
 			return visitComparison(ctx);
-		return visit(ctx.condition(0));
+		return visit(ctx.condition(0), passLabel, skipLabel); //this is wrong
 	}
-
-	public String visitOr(ccalParser.ConditionContext ctx) {
-		jumpIf(visit(ctx.condition(0)), conditionLabel(true));
+	public String visitOr(ccalParser.ConditionContext ctx, String passLabel, String skipLabel) {
+		jumpIf(visit(ctx.condition(0), passLabel, skipLabel), passLabel);
 		return visit(ctx.condition(1));
 	}
-	public String visitAnd(ccalParser.ConditionContext ctx) {
-		jumpIfNot(visit(ctx.condition(0)), conditionLabel(false));
+	public String visitAnd(ccalParser.ConditionContext ctx, String passLabel, String skipLabel) {
+		jumpIfNot(visit(ctx.condition(0), passLabel, skipLabel), skipLabel);
 		return visit(ctx.condition(1));
 	}
-
 	public String visitComparison(ccalParser.ConditionContext ctx) {
 		return visit(ctx.expression(0)) + ctx.comp_op().getText() + visit(ctx.expression(1));
 	}
