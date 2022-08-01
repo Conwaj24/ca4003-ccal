@@ -21,7 +21,7 @@ public class Symbol {
 		if (type.equals(s.type))
 			value = s.get();
 	}
-	public void assign(String s) {
+	public void assign(String s) throws AssignToConst {
 		value = s;
 	}
 }
@@ -33,7 +33,7 @@ class ConstSymbol extends Symbol {
 	ConstSymbol(String type, String value) {
 		super(type, value);
 	}
-	public void assign(String s) {
-		throw new AssignToConst("¯\\_(ツ)_/¯");
+	public void assign(String s) throws AssignToConst {
+		throw new AssignToConst();
 	}
 }

@@ -26,7 +26,7 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 				ctx.ID().getText(),
 				new Symbol(tsig(ctx.type()).takes()) //TODO after conversion to <Symbol>
 		);
-		System.out.println(id + ":");
+		label(id);
 		super.visitFunction(ctx);
 		System.out.println("return " + visit(ctx.expression()));
 		st = st.parent;
@@ -66,34 +66,26 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 
 	@Override
 	public String visitConst_decl(ccalParser.Const_declContext ctx) {
-		String v = deref(visit(ctx.expression()));
-		String id = st.declare( ctx.ID().getText(), new ConstSymbol( tsig(ctx.type()), v));
-		threeAddressCode(id, v, null, null);
-
+		String id = st.declare( ctx.ID().getText(), new ConstSymbol( tsig(ctx.type()), visit(ctx.expression())));
+		threeAddressCode(id, ctx.ID());
 		return id;
 	}
+
 	@Override
 	public String visitAssignment(ccalParser.AssignmentContext ctx) {
-		String id = st.assign(ctx.ID().getText(), visit(ctx.expression()));
 		try {
-			threeAddressCode (
-				id,
-				st.getValue(id),
-				null,
-				null
-			);
-		} catch (UnassignedSymbol e) {
-			threeAddressCode (
-				id,
-				e.toString(),
-				null,
-				null
-			);
-
+			String id = st.assign(ctx.ID().getText(), visit(ctx.expression()));
+			threeAddressCode (id, ctx.ID());
+			return id;
+		} catch(UnknownSymbol e) {
+			e.display(ctx.ID());
+		} catch(AssignToConst e) {
+			e.display(ctx.ID());
 		}
-		return id;
+		return ctx.ID().getText();
 
 	}
+
 
 	//expression
 	@Override
@@ -119,14 +111,19 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	}
 	@Override
 	public String visitNeg_frag(ccalParser.Neg_fragContext ctx) {
+		try {
+			if ( !isInt(st.get(ctx.ID().getText())) )
+				new OperatorMismatch().display(ctx.SUB(), "integer");
 
-		if ( !isInt(st.get(ctx.ID().getText())) )
-			throw new OperatorMismatch(ctx.SUB().getText(), "integer");
-
-		String id = st.temporary(new Symbol("integer", "-" + globalID(ctx.ID())));
-		threeAddressCode(id);
-		return id;
+			String id = st.temporary(new Symbol("integer", "-" + globalID(ctx.ID())));
+			threeAddressCode(id, ctx.ID());
+			return id;
+		} catch (UnknownSymbol e) {
+			e.display(ctx.ID());
+		}
+		return null;
 	}
+
 	@Override
 	public String visitNum_literal(ccalParser.Num_literalContext ctx) {
 		return ctx.NUMBER().getText();
@@ -198,10 +195,17 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	}
 
 	String globalID(TerminalNode idNode) {
-		return st.getFullID(idNode.getText());
+		try {
+			return st.getFullID(idNode.getText());
+		} catch (UnknownSymbol e) {
+			e.display(idNode);
+		} catch (UnassignedSymbol e) {
+			e.display(idNode);
+		}
+		return idNode.getText();
 	}
 
-	String deref(String s) {
+	String deref(String s) throws UnassignedSymbol{
 		try {
 			return st.getValue(s);
 		} catch(UnknownSymbol e) {
@@ -236,9 +240,20 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 		System.out.println(String.format("ifz %s goto %s", condition, l));
 	}
 
-	void threeAddressCode(String id) {
+	void threeAddressCode(String id, TerminalNode idNode) {
+		try {
+			threeAddressCode(id);
+		} catch (UnassignedSymbol e) {
+			e.display(idNode);
+		} catch (UnknownSymbol e) {
+			e.display(idNode);
+		}
+	}
+
+	void threeAddressCode(String id) throws UnassignedSymbol, UnknownSymbol {
 		threeAddressCode(id, st.getValue(id));
 	}
+
 	void threeAddressCode(String a0, String a1) {
 		threeAddressCode(a0, a1, null, null);
 	}

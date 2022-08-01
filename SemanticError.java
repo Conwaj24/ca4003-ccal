@@ -1,32 +1,45 @@
-public class SemanticError extends RuntimeException{
-	public SemanticError(String s) {
-		super(red(s));
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.*;
+
+public class SemanticError extends Throwable{
+	public void display(Token t, String s) {
+		System.err.println(boldWhite(position(t)) + " " + s);
+	}
+
+	static String position(Token t) {
+		return String.format("%d:%d", t.getLine(), t.getCharPositionInLine());
 	}
 	static String red(String s) {
 		return String.format("\u001B[31m%s\u001B[0m", s);
 	}
+	static String boldWhite(ParseTree t) {
+		return boldWhite(t.getText());
+	}
+	static String boldWhite(String s) {
+		return String.format("\u001B[37;1m%s\u001B[0m", s);
+	}
 }
 
 class UnknownSymbol extends SemanticError {
-	UnknownSymbol(String id) {
-		super(String.format("Could not find symbol: %s", id));
+	void display(TerminalNode id) {
+		super.display(id.getSymbol(), red("Could not find symbol: ") + boldWhite(id) );
 	}
 }
 
 class UnassignedSymbol extends SemanticError {
-	UnassignedSymbol(String id) {
-		super(String.format("Symbol, %s, has no value", id));
+	void display(TerminalNode id) {
+		super.display(id.getSymbol(), red("Symbol, ") + boldWhite(id) + red(", has no value") );
 	}
 }
 
 class AssignToConst extends SemanticError {
-	AssignToConst(String id) {
-		super(String.format("Const, %s, cannot be overwritten", id));
+	void display(TerminalNode id) {
+		super.display(id.getSymbol(), red("Const, ") +  boldWhite(id) + red(" cannot be overwritten"));
 	}
 }
 
 class OperatorMismatch extends SemanticError {
-	OperatorMismatch(String op, String expectedType) {
-		super(String.format("Operator, %s, can only be used with type, %s", op, expectedType));
+	void display(TerminalNode op, String expectedType) {
+		super.display(op.getSymbol(), red("Operator, ") + boldWhite(op) + red(", can only be used with type, ") + boldWhite(expectedType) );
 	}
 }

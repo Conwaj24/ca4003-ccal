@@ -46,24 +46,29 @@ public class SymbolTable
 		Symbol out = data.get(id);
 		if (out == null) {
 			if (parent == null)
-				throw new UnknownSymbol (id);
+				throw new UnknownSymbol();
 			return parent.getContext(id);
 		}
 		return new SymbolContext (this, out);
 	}
 
-	public String getFullID(String id) {
+	void checkForValue(Symbol s) throws UnassignedSymbol {
+		if (s.get() == null)
+			throw new UnassignedSymbol();
+	}
+
+	public String getFullID(String id) throws UnknownSymbol, UnassignedSymbol {
 		SymbolContext sc = getContext(id);
+		checkForValue(sc.symbol);
 		return sc.symbolTable.entryID(basename(id));
 	}
 
 	public String getValue(String id) throws UnassignedSymbol, UnknownSymbol {
 		Symbol s = get(id);
-		if (s.get() == null)
-			throw new UnassignedSymbol (id);
+		checkForValue(s);
 		return s.get();
 	}
-	public Symbol get(String id) {
+	public Symbol get(String id) throws UnknownSymbol{
 		return getContext(id).symbol;
 	}
 
@@ -75,7 +80,7 @@ public class SymbolTable
 		return declare(id, new Symbol(type, null));
 	}
 
-	public String assign(String id, String value) {
+	public String assign(String id, String value) throws UnknownSymbol, AssignToConst{
 		SymbolContext sc = getContext(id);
 		sc.symbol.assign(value);
 		return sc.symbolTable.entryID(basename(id));

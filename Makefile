@@ -17,7 +17,7 @@ Symbol.class: TypeSignature.class
 clean:
 	rm -f *.class  ${TITLE}*r.* *.interp *.tokens *.ir
 
-testfile = 2.ccl
+testfile = erroneous.ccl
 test: ${TITLE}
 	java $< ${testfile}
 
