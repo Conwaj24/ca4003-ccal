@@ -76,8 +76,11 @@ public class SymbolTable
 		data.put(id, s);
 		return entryID(id);
 	}
+	public String declare(String id, String type, String value) {
+		return declare(id, new Symbol(type, value));
+	}
 	public String declare(String id, String type) {
-		return declare(id, new Symbol(type, null));
+		return declare(id, type, null);
 	}
 
 	public String assign(String id, String value) throws UnknownSymbol, AssignToConst{

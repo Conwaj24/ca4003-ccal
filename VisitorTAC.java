@@ -42,7 +42,7 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	}
 	@Override
 	public String visitParameter(ccalParser.ParameterContext ctx) {
-		String id = st.declare(ctx.ID().getText(), ctx.type().getText());
+		String id = st.declare(ctx.ID().getText(), ctx.type().getText(), "somevalue");
 		threeAddressCode(id, "getparam");
 		return id;
 	}
