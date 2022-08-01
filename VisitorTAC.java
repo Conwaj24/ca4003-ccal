@@ -73,23 +73,41 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 
 	@Override
 	public String visitAssignment(ccalParser.AssignmentContext ctx) {
+		String v = visit(ctx.expression());
+		Symbol vsym = null;
+		String id = ctx.ID().getText();
 		try {
-			String id = st.assign(ctx.ID().getText(), visit(ctx.expression()));
+			try { vsym = st.get(v); }
+			catch (UnknownSymbol e) { //assume literal value assignment
+				id = st.assign(ctx.ID().getText(), v);
+			} if ( vsym !=null ) {
+				try { id = st.assign(ctx.ID().getText(), vsym); }
+				catch (AssignmentMismatch e) {
+					e.display(ctx.ID(), vsym.get(), st.get(ctx.ID().getText()).type); }
+				catch (UnassignedSymbol e) { /*return Utils.die(e); probably our fault or would have been caught sooner*/ }
+			}
 			threeAddressCode (id, ctx.ID());
-			return id;
 		} catch(UnknownSymbol e) {
 			e.display(ctx.ID());
 		} catch(AssignToConst e) {
 			e.display(ctx.ID());
 		}
-		return ctx.ID().getText();
-
+		return id;
 	}
 
 	//expression
 	@Override
 	public String visitFrag_expr(ccalParser.Frag_exprContext ctx) {
-		return visit(ctx.frag());
+		String s = visitSymbolicFrag(ctx.frag());
+		if (s != null)
+			return s;
+
+		s = visitNumericFrag(ctx.frag());
+		if (s != null)
+			return temporary("integer", s);
+
+		s = visitBooleanFrag(ctx.frag());
+		return temporary("boolean", s);
 	}
 	@Override
 	public String visitArithmetic_expr(ccalParser.Arithmetic_exprContext ctx) {
@@ -100,14 +118,7 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 			new OperatorMismatch().display(ctx.binary_arith_op(), "integer");
 			v = visit(ctx.frag());
 		}
-		String id = st.temporary(new Symbol("integer", v));
-		threeAddressCode (
-			id,
-			v,
-			ctx.binary_arith_op().getText(),
-			visit(ctx.expression())
-		);
-		return id;
+		return temporary("integer", v + ctx.binary_arith_op().getText() + visit(ctx.expression()));
 	}
 
 	//frag
@@ -159,9 +170,7 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 			if ( !isInt(st.get(ctx.ID().getText())) )
 				new OperatorMismatch().display(ctx.SUB(), "integer");
 
-			String id = st.temporary(new Symbol("integer", "-" + globalID(ctx.ID())));
-			threeAddressCode(id, ctx.ID());
-			return id;
+			return temporary("integer", "-" + globalID(ctx.ID()));
 		} catch (UnknownSymbol e) {
 			e.display(ctx.ID());
 		}
@@ -271,6 +280,11 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 		System.out.println(String.format("ifz %s goto %s", condition, l));
 	}
 
+	String temporary(String type, String value) {
+		String id = st.temporary(new Symbol(type, value));
+		threeAddressCode(id, value);
+		return id;
+	}
 	void threeAddressCode(String id, TerminalNode idNode) {
 		try {
 			threeAddressCode(id);

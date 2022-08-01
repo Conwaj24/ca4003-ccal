@@ -88,6 +88,12 @@ public class SymbolTable
 		sc.symbol.assign(value);
 		return sc.symbolTable.entryID(basename(id));
 	}
+	public String assign(String id, Symbol value) throws UnknownSymbol, UnassignedSymbol, AssignmentMismatch, AssignToConst{
+		checkForValue(value);
+		SymbolContext sc = getContext(id);
+		sc.symbol.assign(value);
+		return sc.symbolTable.entryID(basename(id));
+	}
 
 	public String temporary(Symbol s) {
 		String id = "t" + tempCount++;

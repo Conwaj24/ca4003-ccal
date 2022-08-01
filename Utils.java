@@ -65,4 +65,9 @@ class Utils {
 	static String concatTrailingNonzeroes(String... args) {
 		return concatTralingNonzeroes(args, ".");
 	}
+	static String die(Throwable deathRattle) {
+		System.err.println(deathRattle);
+		System.exit(1);
+		return null;
+	}
 }

@@ -18,7 +18,7 @@ integer multiply(x:integer,y:integer)
         {
             if(x<0)&&y<0
             {
-                minus_sign=false;
+                minus_sign=3;
                 x=-x;
                 y=-y;
             }
@@ -51,7 +51,7 @@ main
     var result:integer;
     const five:integer=5;
     arg1=arg2; //unassigned symbol
-    five=6 //assign to const
+    five=6; //assign to const
     arg2=jive; //unknown symbol
     result=multiply(arg1);
 }

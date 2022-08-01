@@ -17,9 +17,11 @@ public class Symbol {
 		return value;
 	}
 
-	public void assign(Symbol s) {
+	public void assign(Symbol s) throws AssignmentMismatch{
 		if (type.equals(s.type))
 			value = s.get();
+		else
+			throw new AssignmentMismatch();
 	}
 	public void assign(String s) throws AssignToConst {
 		value = s;

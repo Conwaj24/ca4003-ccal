@@ -49,3 +49,12 @@ class OperatorMismatch extends SemanticError {
 		display(op.getSymbol(), op.getText(), expectedType);
 	}
 }
+
+class AssignmentMismatch extends SemanticError {
+	void display(TerminalNode id, String rOperand, String expectedType) {
+		super.display(id.getSymbol(), red("Cannot assign ") + boldWhite(id) + red(" to ") + boldWhite(rOperand) + red(", must be of type; ") + boldWhite(expectedType) );
+	}
+	void display(TerminalNode id, String rOperand, TypeSignature expectedType) {
+		display(id, rOperand, expectedType.name);
+	}
+}
