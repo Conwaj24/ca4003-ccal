@@ -86,7 +86,6 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 
 	}
 
-
 	//expression
 	@Override
 	public String visitFrag_expr(ccalParser.Frag_exprContext ctx) {
@@ -106,11 +105,39 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 
 	//frag
 	@Override
-	public String visitId_frag(ccalParser.Id_fragContext ctx) {
-		return globalID(ctx.ID());
+	public String visitFrag(ccalParser.FragContext ctx) {
+		String out = visitNumericFrag(ctx);
+		if (out != null)
+			return out;
+		out = visitBooleanFrag(ctx);
+		if (out != null)
+			return out;
+		return visitSymbolicFrag(ctx);
 	}
-	@Override
-	public String visitNeg_frag(ccalParser.Neg_fragContext ctx) {
+
+	public String visitNumericFrag(ccalParser.FragContext ctx) {
+		if (ctx.SUB() != null)
+			return visitNeg_frag(ctx);
+		if (ctx.NUMBER() != null)
+			return ctx.NUMBER().getText();
+		if (ctx.frag() != null)
+			return visitNumericFrag(ctx.frag());
+		return null;
+	}
+	public String visitBooleanFrag(ccalParser.FragContext ctx) {
+		if (ctx.bool() != null)
+			return ctx.bool().getText();
+		return null;
+	}
+	public String visitSymbolicFrag(ccalParser.FragContext ctx) {
+		if (ctx.expression() != null)
+			return visit(ctx.expression());
+		if (ctx.ID() != null && ctx.SUB() == null)
+			return globalID(ctx.ID());
+		return null;
+	}
+
+	public String visitNeg_frag(ccalParser.FragContext ctx) {
 		try {
 			if ( !isInt(st.get(ctx.ID().getText())) )
 				new OperatorMismatch().display(ctx.SUB(), "integer");
@@ -122,19 +149,6 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 			e.display(ctx.ID());
 		}
 		return null;
-	}
-
-	@Override
-	public String visitNum_literal(ccalParser.Num_literalContext ctx) {
-		return ctx.NUMBER().getText();
-	}
-	@Override
-	public String visitBool_literal(ccalParser.Bool_literalContext ctx) {
-		return ctx.bool().getText();
-	}
-	@Override
-	public String visitExpression_frag(ccalParser.Expression_fragContext ctx) {
-		return visit(ctx.expression());
 	}
 
 	@Override

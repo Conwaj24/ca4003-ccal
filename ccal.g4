@@ -129,12 +129,7 @@ expression:
 	frag #frag_expr;
 binary_arith_op: ADD | SUB;
 frag:
-	ID #id_frag |
-	SUB ID #neg_frag |
-	NUMBER #num_literal |
-	bool #bool_literal |
-	'(' expression ')' #expression_frag|
-	'(' frag ')' #encapsulated_frag;
+	ID | SUB ID | NUMBER | bool | '(' expression ')' | '(' frag ')';
 bool: TRUE | FALSE;
 condition:
 	NOT condition |
