@@ -39,7 +39,13 @@ class AssignToConst extends SemanticError {
 }
 
 class OperatorMismatch extends SemanticError {
+	void display(Token t, String op, String expectedType) {
+		super.display(t, red("Operator, ") + boldWhite(op) + red(", can only be used with type, ") + boldWhite(expectedType) );
+	}
+	void display(ParserRuleContext op, String expectedType) {
+		display(op.getStart(), op.getText(), expectedType);
+	}
 	void display(TerminalNode op, String expectedType) {
-		super.display(op.getSymbol(), red("Operator, ") + boldWhite(op) + red(", can only be used with type, ") + boldWhite(expectedType) );
+		display(op.getSymbol(), op.getText(), expectedType);
 	}
 }

@@ -93,10 +93,17 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 	}
 	@Override
 	public String visitArithmetic_expr(ccalParser.Arithmetic_exprContext ctx) {
-		String id = st.temporary(new Symbol("integer", visit(ctx.frag())));
+		String v;
+		try {
+			v = getNumeric(ctx.frag());
+		} catch (SemanticError e) {
+			new OperatorMismatch().display(ctx.binary_arith_op(), "integer");
+			v = visit(ctx.frag());
+		}
+		String id = st.temporary(new Symbol("integer", v));
 		threeAddressCode (
 			id,
-			visit(ctx.frag()),
+			v,
 			ctx.binary_arith_op().getText(),
 			visit(ctx.expression())
 		);
@@ -135,6 +142,16 @@ public class VisitorTAC extends ccalBaseVisitor<String> {
 		if (ctx.ID() != null && ctx.SUB() == null)
 			return globalID(ctx.ID());
 		return null;
+	}
+
+	public String getNumeric(ccalParser.FragContext ctx) throws SemanticError {
+		String out = visitNumericFrag(ctx);
+		if (out != null)
+			return out;
+		out = visitSymbolicFrag(ctx);
+		if( !isInt(st.get(out)) )
+			throw new SemanticError();
+		return out;
 	}
 
 	public String visitNeg_frag(ccalParser.FragContext ctx) {
