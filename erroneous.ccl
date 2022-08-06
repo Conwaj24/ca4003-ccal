@@ -5,11 +5,11 @@ integer multiply(x:integer,y:integer)
     if(x<0&&y>=0)
     {
         minus_sign=true;
-        x=-x;
+        x=false;
     }
     else
     {
-        if(y<0&&x>=0)
+        if(y<0&&x>=minus_sign)
         {
             minus_sign=true;
             y=-y;
